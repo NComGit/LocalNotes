@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 200" width="520" height="200">
+  <rect width="520" height="200" fill="#FCFCFA"/>
+  <g fill="none" stroke="#E6E6E2"><rect x="20" y="30" width="140" height="70"/><rect x="190" y="30" width="140" height="70"/><rect x="360" y="30" width="140" height="70"/><rect x="190" y="120" width="140" height="60"/></g>
+  <g font-family="Inter, system-ui, sans-serif" font-size="13" fill="#1a1c1b" text-anchor="middle">
+    <text x="90" y="70">Disk (HTML)</text><text x="260" y="70">DOMParser</text><text x="430" y="70">AlaSQL index</text><text x="260" y="155">HugeRTE</text>
+  </g>
+  <g stroke="#1d59c1" stroke-width="1.2" fill="none">
+    <path d="M160 65 H188"/><path d="M330 65 H358"/><path d="M260 100 V118"/>
+  </g>
+</svg>

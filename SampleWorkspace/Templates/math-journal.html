@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{title}}</title>
+<style>
+  .journal { font-family: Georgia, Garamond, serif; }
+  .journal-head { display: flex; align-items: baseline; justify-content: space-between;
+                  gap: 16px; border-bottom: 1px solid #E6E6E2; padding-bottom: 14px; margin-bottom: 24px; }
+  .journal-head h1 { font-size: 32px; font-weight: 600; margin: 0; }
+  .journal-head .stamp { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: #7A756D;
+                         white-space: nowrap; }
+  .journal-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+  @media (min-width: 900px) { .journal-grid { grid-template-columns: 1fr 210px; } }
+  .journal-side { font-family: Inter, system-ui, sans-serif; font-size: 12px; color: #7A756D;
+                  border-top: 1px solid #E6E6E2; padding-top: 10px; }
+  .journal-side dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; }
+  .journal-side dt { color: #7A756D; } .journal-side dd { margin: 0; color: #1a1c1b; }
+  .formula { display: block; font-family: "Latin Modern Math", Cambria Math, Georgia, serif;
+             background: #F4F4F2; border-left: 2px solid #1d59c1; padding: 10px 14px;
+             margin: 1.3em 0; font-size: 18px; overflow-x: auto; }
+  .formula .num { float: right; font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: #7A756D; }
+  var, .var { font-style: italic; }
+  sub, sup { font-size: .72em; }
+</style>
+</head>
+<body>
+  <article class="journal">
+    <header class="journal-head">
+      <h1>{{title}}</h1>
+      <span class="stamp">{{modified}}</span>
+    </header>
+    <div class="journal-grid">
+      <div data-note-content></div>
+      <aside class="journal-side">
+        <dl>
+          <dt>Tags</dt><dd>{{tags}}</dd>
+          <dt>Created</dt><dd>{{created}}</dd>
+          <dt>Words</dt><dd>{{words}}</dd>
+          <dt>Formulae</dt><dd data-formula-count>0</dd>
+          <dt>Siblings</dt><dd data-sibling-count>0</dd>
+        </dl>
+      </aside>
+    </div>
+  </article>
+
+  <script type="module">
+    /* Typesetter hook: promotes $$...$$ blocks into numbered .formula displays
+       and queries the live transient index for related notes. */
+    export function initTemplate(workspace) {
+      const root = workspace.root;
+      const body = root.querySelector('[data-note-content]');
+      if (!body) return;
+
+      let counter = 0;
+      const typeset = (text) => text
+        .replace(/\^\{?([^}\s]+)\}?/g, '<sup>$1</sup>')
+        .replace(/_\{?([^}\s]+)\}?/g, '<sub>$1</sub>')
+        .replace(/\\times/g, '×').replace(/\\cdot/g, '·')
+        .replace(/\\leq/g, '≤').replace(/\\geq/g, '≥').replace(/\\neq/g, '≠')
+        .replace(/\\approx/g, '≈').replace(/\\sum/g, '∑').replace(/\\int/g, '∫')
+        .replace(/\\sqrt\{([^}]*)\}/g, '√($1)')
+        .replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, '($1)/($2)')
+        .replace(/\\alpha/g, 'α').replace(/\\beta/g, 'β').replace(/\\mu/g, 'μ')
+        .replace(/\\sigma/g, 'σ').replace(/\\Delta/g, 'Δ').replace(/\\infty/g, '∞')
+        .replace(/\\in/g, '∈').replace(/\\cup/g, '∪').replace(/\\cap/g, '∩')
+        .replace(/\\subseteq/g, '⊆');
+
+      for (const node of Array.from(body.querySelectorAll('p, pre, div'))) {
+        const raw = node.textContent.trim();
+        const match = raw.match(/^\$\$([\s\S]+)\$\$$/);
+        if (!match) continue;
+        counter += 1;
+        const display = document.createElement('div');
+        display.className = 'formula';
+        display.innerHTML = `<span class="num">(${counter})</span>${typeset(match[1].trim())}`;
+        node.replaceWith(display);
+      }
+
+      const count = root.querySelector('[data-formula-count]');
+      if (count) count.textContent = String(counter);
+
+      /* Ask the transient AlaSQL index for notes sharing this template. */
+      try {
+        const rows = workspace.query(
+          'SELECT COUNT(*) AS n FROM notes WHERE template = ?', [workspace.note.template]
+        );
+        const siblings = root.querySelector('[data-sibling-count]');
+        if (siblings && rows.length) siblings.textContent = String(Math.max(0, (rows[0].n || 1) - 1));
+      } catch (error) {
+        console.warn('math-journal: index query unavailable', error);
+      }
+    }
+  </script>
+</body>
+</html>

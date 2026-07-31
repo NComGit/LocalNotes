@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="LocalNotes">
+  <rect width="512" height="512" fill="#FCFCFA"/>
+  <rect x="0.5" y="0.5" width="511" height="511" fill="none" stroke="#E6E6E2" stroke-width="1"/>
+  <!-- Sidebar strip -->
+  <rect x="56" y="72" width="96" height="368" fill="#F5F5F3"/>
+  <line x1="152.5" y1="72" x2="152.5" y2="440" stroke="#E6E6E2" stroke-width="1"/>
+  <!-- Nav rows -->
+  <rect x="76" y="104" width="56" height="8" fill="#C8C6C2"/>
+  <rect x="76" y="128" width="44" height="8" fill="#DCDAD5"/>
+  <rect x="76" y="152" width="52" height="8" fill="#DCDAD5"/>
+  <rect x="70" y="176" width="76" height="20" fill="#EDECE8"/>
+  <rect x="76" y="182" width="48" height="8" fill="#8A857D"/>
+  <rect x="76" y="212" width="40" height="8" fill="#DCDAD5"/>
+  <!-- Document canvas -->
+  <rect x="152" y="72" width="304" height="368" fill="#FFFFFF"/>
+  <rect x="152.5" y="72.5" width="303" height="367" fill="none" stroke="#E6E6E2" stroke-width="1"/>
+  <!-- Serif title glyph -->
+  <text x="188" y="176" font-family="Georgia, 'EB Garamond', serif" font-size="104" font-weight="600" fill="#1a1c1b">N</text>
+  <line x1="188" y1="206" x2="420" y2="206" stroke="#1d59c1" stroke-width="3"/>
+  <!-- Body lines -->
+  <rect x="188" y="232" width="232" height="9" fill="#D7D5D0"/>
+  <rect x="188" y="256" width="204" height="9" fill="#D7D5D0"/>
+  <rect x="188" y="280" width="220" height="9" fill="#D7D5D0"/>
+  <rect x="188" y="304" width="150" height="9" fill="#D7D5D0"/>
+  <rect x="188" y="340" width="232" height="9" fill="#E4E2DD"/>
+  <rect x="188" y="364" width="186" height="9" fill="#E4E2DD"/>
+  <rect x="188" y="388" width="210" height="9" fill="#E4E2DD"/>
+</svg>

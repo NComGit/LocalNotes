@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{title}}</title>
+<style>
+  .paper { font-family: Georgia, Garamond, serif; color: #1a1c1b; }
+  .paper-head { border-bottom: 1px solid #E6E6E2; padding-bottom: 16px; margin-bottom: 26px; }
+  .paper-head h1 { font-size: 34px; line-height: 1.15; margin: 0 0 10px; font-weight: 600; }
+  .paper-meta { font-family: Inter, system-ui, sans-serif; font-size: 12px; color: #7A756D;
+                display: flex; flex-wrap: wrap; gap: 14px; }
+  .paper-abstract { background: #F4F4F2; border-left: 2px solid #1d59c1; padding: 12px 16px;
+                    font-size: 15px; color: #4b463f; margin-bottom: 26px; }
+  .paper-toc { font-family: Inter, system-ui, sans-serif; font-size: 13px; border-top: 1px solid #E6E6E2;
+               border-bottom: 1px solid #E6E6E2; padding: 12px 0; margin-bottom: 30px; }
+  .paper-toc h4 { font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+                  color: #7A756D; margin: 0 0 8px; }
+  .paper-toc ol { margin: 0; padding-left: 18px; }
+  .paper-toc a { color: #1d59c1; text-decoration: none; }
+  .paper-toc a:hover { text-decoration: underline; }
+  .paper-body { counter-reset: figure; }
+  .paper-body h2 { font-size: 23px; margin: 1.8em 0 .5em; }
+  .paper-body figure figcaption::before { counter-increment: figure; content: "Fig. " counter(figure) " — "; }
+  .paper-foot { margin-top: 46px; border-top: 1px solid #E6E6E2; padding-top: 12px;
+                font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: #7A756D; }
+</style>
+</head>
+<body>
+  <article class="paper">
+    <header class="paper-head">
+      <h1>{{title}}</h1>
+      <div class="paper-meta">
+        <span>Created {{created}}</span>
+        <span>Modified {{modified}}</span>
+        <span>{{words}} words</span>
+        <span>{{taglist}}</span>
+      </div>
+    </header>
+    <div class="paper-abstract" data-abstract hidden></div>
+    <nav class="paper-toc" data-toc hidden><h4>Contents</h4><ol></ol></nav>
+    <div class="paper-body" data-note-content></div>
+    <footer class="paper-foot">{{workspace}}/{{path}} · template: {{template}}</footer>
+  </article>
+
+  <script type="module">
+    /* Lifecycle hook fired by app.js after the note is injected. */
+    export function initTemplate(workspace) {
+      const root = workspace.root;
+      const body = root.querySelector('[data-note-content]');
+      if (!body) return;
+
+      /* Auto-numbered, linkable headings + table of contents. */
+      const toc = root.querySelector('[data-toc]');
+      const list = toc ? toc.querySelector('ol') : null;
+      const headings = body.querySelectorAll('h2');
+      headings.forEach((heading, index) => {
+        const id = `sec-${index + 1}-${heading.textContent.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+        heading.id = id;
+        if (!list) return;
+        const item = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = `#${id}`;
+        link.textContent = heading.textContent;
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        item.append(link);
+        list.append(item);
+      });
+      if (toc && headings.length) toc.hidden = false;
+
+      /* The first paragraph doubles as the abstract. */
+      const abstract = root.querySelector('[data-abstract]');
+      const first = body.querySelector('p');
+      if (abstract && first && first.textContent.trim().length > 40) {
+        abstract.textContent = first.textContent.trim();
+        abstract.hidden = false;
+        first.remove();
+      }
+    }
+  </script>
+</body>
+</html>

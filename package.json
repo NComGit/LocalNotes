@@ -1,0 +1,23 @@
+{
+  "name": "localnotes-manager",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local-first HTML note manager. Notes are plain portable HTML files on your own disk; indexing is transient AlaSQL; editing is HugeRTE behind a style firewall.",
+  "type": "module",
+  "scripts": {
+    "vendor": "bash scripts/vendor-libs.sh",
+    "postinstall": "bash scripts/vendor-libs.sh",
+    "start": "python3 -m http.server 8080",
+    "serve": "python3 -m http.server 8080",
+    "check": "node --check app.js && node --check sw.js"
+  },
+  "keywords": [
+    "local-first",
+    "notes",
+    "file-system-access",
+    "pwa",
+    "alasql",
+    "hugerte"
+  ],
+  "license": "MIT"
+}

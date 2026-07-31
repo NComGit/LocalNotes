@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LocalNotes Manager</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Pre-loaded local offline core libraries -->
+  <script src="./lib/alasql.js"></script>
+  <script src="./lib/hugerte/hugerte.min.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Column 1: Navigation Sidebar -->
+    <aside class="sidebar" id="col-navigation">
+      <div class="sidebar-header">
+        <h1 class="brand">LocalNotes</h1>
+        <button id="btn-new-note" class="btn">[ + New Note ]</button>
+        <button id="btn-mount" class="btn btn-secondary">[ Mount Folder ]</button>
+      </div>
+
+      <div class="search-wrapper">
+        <input type="text" id="search-input" placeholder="Search index... (e.g. tag:work)" />
+      </div>
+
+      <nav class="nav-section">
+        <h3>NOTES</h3>
+        <div id="file-tree" class="file-tree-container"></div>
+      </nav>
+
+      <div class="nav-section">
+        <div class="section-header-row">
+          <h3>TAGS</h3>
+          <button id="btn-clear-tags" class="btn-text" style="display:none;">[ Clear ]</button>
+        </div>
+        <div id="tags-list" class="tags-list-container"></div>
+      </div>
+
+      <div class="nav-section">
+        <div class="section-header-row">
+          <h3>QUERIES</h3>
+          <button id="btn-new-query" class="btn-text">[ + ]</button>
+        </div>
+        <div id="queries-list" class="queries-list-container"></div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="btn-settings" class="btn-icon">⚙ Settings</button>
+        <span id="status-badge" class="badge badge-disconnected">● Folder Unmounted</span>
+      </div>
+    </aside>
+
+    <!-- Column 2: Search / Index Results Queue -->
+    <section class="results-queue" id="col-results">
+      <header class="queue-header">
+        <span id="results-count" class="mono-label">Found: 0 notes</span>
+      </header>
+      <div id="results-list" class="results-list-container"></div>
+    </section>
+
+    <!-- Column 3: Main Workspace Canvas -->
+    <main class="workspace" id="col-workspace">
+      <!-- Empty/Welcome State Container -->
+      <div id="workspace-empty-state" class="empty-state">
+        <div class="welcome-box">
+          <h2>Welcome to LocalNotes</h2>
+          <p>Please mount your local notes directory to begin writing. All notes are saved 100% locally on your machine.</p>
+          <button id="btn-welcome-mount" class="btn">[ Select Notes Directory ]</button>
+        </div>
+      </div>
+
+      <!-- Active Editor/Viewer Container (Hidden by default) -->
+      <div id="workspace-active-state" class="workspace-active" style="display: none;">
+        <header class="workspace-header">
+          <span id="current-filepath" class="meta-path">File: ~/MyNotes/</span>
+          
+          <div class="workspace-controls">
+            <select id="select-template">
+              <option value="default">Template: Default</option>
+            </select>
+            
+            <div class="toggle-group">
+              <button id="btn-toggle-edit" class="toggle-btn active">Edit</button>
+              <button id="btn-toggle-preview" class="toggle-btn">Rendered Preview</button>
+            </div>
+          </div>
+        </header>
+
+        <!-- View Wrapper Pane -->
+        <div class="canvas-viewport">
+          <!-- Mode A: WYSIWYG Editing Area -->
+          <div id="pane-editor" class="editor-pane">
+            <input type="text" id="note-title-input" class="title-input-serif" placeholder="Untitled Note" />
+            <div id="metadata-editor-bar" class="meta-edit-bar">
+              <label>Tags: <input type="text" id="note-tags-input" placeholder="work, strategy, logs" /></label>
+            </div>
+            <textarea id="my-note-editor"></textarea>
+          </div>
+
+          <!-- Mode B: Dynamic HTML Template Preview Container -->
+          <div id="pane-preview" class="preview-pane" style="display: none;">
+            <div id="rendered-view-pane"></div>
+          </div>
+        </div>
+
+        <footer class="workspace-footer">
+          <span id="file-encoding" class="mono-label">UTF-8</span>
+          <span id="cursor-position" class="mono-label">Ln 1, Col 1</span>
+          <span id="last-saved-status" class="mono-label">All changes saved</span>
+        </footer>
+      </div>
+    </main>
+
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

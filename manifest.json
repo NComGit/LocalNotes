@@ -1,0 +1,38 @@
+{
+  "name": "LocalNotes Manager",
+  "short_name": "LocalNotes",
+  "description": "A local-first HTML note manager. Your notes are plain, portable HTML files stored on your own hard drive - never on a server.",
+  "id": "localnotes-manager",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#FCFCFA",
+  "theme_color": "#F5F5F3",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Note",
+      "short_name": "New",
+      "description": "Create a new note in the mounted workspace",
+      "url": "./index.html?action=new"
+    }
+  ]
+}

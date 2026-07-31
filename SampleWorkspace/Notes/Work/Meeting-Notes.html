@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weekly Sync — Platform</title>
+    <meta name="template" content="academic-article">
+    <meta name="tags" content="work, logs, meetings">
+    <meta name="created" content="2026-07-29">
+    <meta name="modified" content="2026-07-31">
+</head>
+<body>
+    <section id="content">
+<h1>Weekly Sync — Platform</h1>
+<p>Short standing meeting covering the migration off the hosted editor, the offline shell, and the template contract that keeps note files free of layout code.</p>
+<h2>Decisions</h2>
+<ol>
+  <li>Ship the local library folder — no CDN in the boot path.</li>
+  <li>Keep <code>&lt;section id="content"&gt;</code> as the only content contract.</li>
+  <li>Saved <code>.sql</code> files outrank GUI facets, by design.</li>
+</ol>
+<h2>Follow-ups</h2>
+<ul>
+  <li>Document the sanitizer's banned-attribute list.</li>
+  <li>Add a faceted-count regression test for empty tags.</li>
+</ul>
+    </section>
+</body>
+</html>

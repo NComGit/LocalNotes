@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "theme": "light",
+  "accent": "#1d59c1",
+  "sidebarWidth": 280,
+  "resultsWidth": 330,
+  "contentWidth": 720,
+  "activeFolder": "Notes",
+  "selectedTags": [],
+  "expandedFolders": ["Notes", "Notes/Work", "Notes/Work/Project-Delta", "Notes/Personal"],
+  "lastNote": "Notes/Work/Project-Delta/Project-Delta.html",
+  "viewMode": "edit",
+  "autosave": true,
+  "autosaveDelay": 1500,
+  "defaultTemplate": "academic-article",
+  "sortOrder": "modified-desc",
+  "lastOpened": ""
+}

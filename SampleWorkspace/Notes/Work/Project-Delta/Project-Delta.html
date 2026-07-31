@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Delta Strategy</title>
+    <meta name="template" content="math-journal">
+    <meta name="tags" content="work, strategy, math, important">
+    <meta name="created" content="2026-07-27">
+    <meta name="modified" content="2026-07-30">
+</head>
+<body>
+    <section id="content">
+<h1>Deliverables &amp; Metrics</h1>
+<p>Project Delta replaces the vendor-hosted note store with a local-first pipeline: files on disk, an index rebuilt at launch, and templates that own every pixel of presentation.</p>
+<h2>Architecture</h2>
+<p>The read path is a straight line — disk bytes, DOMParser, transient index, editor.</p>
+<figure>
+  <img src="./Assets/architecture.svg" alt="Read path: disk to DOMParser to AlaSQL index to HugeRTE">
+  <figcaption>The launch-time indexing path. No binary database is ever written.</figcaption>
+</figure>
+<h2>Cost model</h2>
+<p>Indexing cost grows linearly with the note count, and the parse dominates:</p>
+<p>$$T_{index} = n \cdot (t_{read} + t_{parse}) + \sum_{i=1}^{n} t_{meta}(i)$$</p>
+<p>With <var>n</var> = 2,000 notes and a mean parse of 0.4 ms, a cold scan lands under one second.</p>
+<h2>Acceptance criteria</h2>
+<table>
+  <thead><tr><th>Metric</th><th>Target</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td>Cold index (2k notes)</td><td>&lt; 1200 ms</td><td>met</td></tr>
+    <tr><td>Save round-trip</td><td>&lt; 80 ms</td><td>met</td></tr>
+    <tr><td>Inline styles written to disk</td><td>0</td><td>met</td></tr>
+    <tr><td>Network requests after boot</td><td>0</td><td>met</td></tr>
+  </tbody>
+</table>
+<h2>Open questions</h2>
+<ul>
+  <li>Should bundle renames rewrite inbound relative links automatically?</li>
+  <li>Do we expose <code>note_tags</code> to template modules, or keep it read-only?</li>
+</ul>
+<blockquote>If the application dies, the files remain universally readable.</blockquote>
+    </section>
+</body>
+</html>

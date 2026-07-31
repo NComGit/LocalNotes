@@ -1,0 +1,9 @@
+LocalNotes Manager - vendored offline runtime libraries
+Generated: 2026-07-31T21:22:17Z
+
+idb-keyval  6.2.1   (Apache-2.0)  -> lib/idb-keyval.js
+alasql      4.6.6   (MIT)         -> lib/alasql.js
+hugerte     1.0.9   (MIT)         -> lib/hugerte/
+
+Re-generate with:  bash scripts/vendor-libs.sh
+These files are intentionally committed so the app boots with zero network access.

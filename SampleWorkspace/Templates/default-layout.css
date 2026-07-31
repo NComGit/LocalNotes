@@ -1,0 +1,4 @@
+/* default-layout.css — used when a note declares no template. */
+.note-default-header { border-bottom: 1px solid #E6E6E2; margin-bottom: 28px; padding-bottom: 14px; }
+.note-default-header h1 { font-family: Georgia, serif; font-size: 32px; font-weight: 600; margin: 0; }
+.note-default-tags { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #7A756D; margin-top: 8px; }
