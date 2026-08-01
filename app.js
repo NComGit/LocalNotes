@@ -49,9 +49,9 @@ const DEFAULT_CONFIG = {
   sidebarWidth: 280,
   resultsWidth: 330,
   contentWidth: 720,
-  activeFolder: DIR_NOTES,
+  activeFolder: '',
   selectedTags: [],
-  expandedFolders: [DIR_NOTES],
+  expandedFolders: [''],
   lastNote: '',
   viewMode: 'edit',
   autosave: true,
@@ -227,14 +227,14 @@ const State = {
   templates: [],
   queries: [],
 
-  folderFilter: DIR_NOTES,
+  folderFilter: '',
   selectedTags: new Set(),
   searchText: '',
   activeQuery: null,      /* { name, path, sql } */
   results: [],
   rawRows: null,          /* non-note SQL rows */
 
-  expanded: new Set([DIR_NOTES]),
+  expanded: new Set(['']),
 
   current: null,          /* active note session */
   dirty: false,
@@ -586,7 +586,6 @@ async function mountRoot(handle) {
 
 /** Create the canonical directory skeleton + starter files on first mount. */
 async function ensureWorkspaceSkeleton() {
-  await getDirectory(State.rootHandle, DIR_NOTES, true);
   await getDirectory(State.rootHandle, DIR_TEMPLATES, true);
   await getDirectory(State.rootHandle, DIR_QUERIES, true);
 
@@ -616,11 +615,11 @@ async function loadConfig() {
     console.warn('[localnotes] config.json unreadable, using defaults', error);
   }
   State.config = { ...DEFAULT_CONFIG, ...(loaded && typeof loaded === 'object' ? loaded : {}) };
-  State.folderFilter = State.config.activeFolder || DIR_NOTES;
+  State.folderFilter = State.config.activeFolder !== undefined ? State.config.activeFolder : '';
   State.selectedTags = new Set(Array.isArray(State.config.selectedTags) ? State.config.selectedTags : []);
   State.expanded = new Set(Array.isArray(State.config.expandedFolders) && State.config.expandedFolders.length
     ? State.config.expandedFolders
-    : [DIR_NOTES]);
+    : ['']);
   State.viewMode = State.config.viewMode === 'preview' ? 'preview' : 'edit';
   await set(IDB_CONFIG_KEY, State.config);
 }
@@ -694,8 +693,8 @@ async function scanWorkspace() {
 
   try {
     const notes = [];
-    const notesDir = await getDirectory(State.rootHandle, DIR_NOTES, true);
-    await walkNotes(notesDir, DIR_NOTES, notes, 0);
+    /* Recursively scan from the root handle to discover all notes */
+    await walkNotes(State.rootHandle, '', notes, 0);
 
     notes.sort((a, b) => (b.modifiedTs - a.modifiedTs) || a.path.localeCompare(b.path));
     State.notes = notes;
@@ -727,16 +726,19 @@ async function walkNotes(dirHandle, path, output, depth) {
   for (const [name, handle] of await dirEntries(dirHandle)) {
     if (name.startsWith('.') || name === 'node_modules') continue;
     if (handle.kind === 'directory') {
-      if (name === DIR_ASSETS) continue;         /* assets are not notes */
-      await walkNotes(handle, `${path}/${name}`, output, depth + 1);
+      /* Skip reserved system folders */
+      if (name === DIR_TEMPLATES || name === DIR_QUERIES || name === DIR_ASSETS) continue;
+      const subPath = path ? `${path}/${name}` : name;
+      await walkNotes(handle, subPath, output, depth + 1);
       continue;
     }
     if (!/\.x?html?$/i.test(name)) continue;
     try {
-      const record = await buildNoteRecord(handle, dirHandle, `${path}/${name}`);
+      const filePath = path ? `${path}/${name}` : name;
+      const record = await buildNoteRecord(handle, dirHandle, filePath);
       output.push(record);
     } catch (error) {
-      console.warn(`[localnotes] failed to parse ${path}/${name}`, error);
+      console.warn(`[localnotes] failed to parse ${path ? `${path}/${name}` : name}`, error);
     }
   }
 }
@@ -785,24 +787,24 @@ async function buildNoteRecord(fileHandle, parentDir, path) {
     title_lc: title.toLowerCase(),
     text_lc: parsed.contentText.toLowerCase(),
     path_lc: path.toLowerCase(),
-    is_bundle: basename(dir).toLowerCase() === stripExtension(name).toLowerCase(),
+    is_bundle: dir !== '' && basename(dir).toLowerCase() === stripExtension(name).toLowerCase(),
     has_assets: hasAssets
   };
 }
 
 function buildTree(notes) {
-  const root = { name: DIR_NOTES, path: DIR_NOTES, kind: 'folder', children: new Map(), notes: [], count: 0 };
+  const rootLabel = State.rootName || 'Workspace';
+  const root = { name: rootLabel, path: '', kind: 'folder', children: new Map(), notes: [], count: 0 };
 
   for (const note of notes) {
     const parts = splitPath(note.dir);
     let node = root;
-    /* parts[0] is always 'Notes' — start from index 1. */
-    for (let i = 1; i < parts.length; i += 1) {
+    for (let i = 0; i < parts.length; i += 1) {
       const segment = parts[i];
       if (!node.children.has(segment)) {
         node.children.set(segment, {
           name: segment,
-          path: `${node.path}/${segment}`,
+          path: node.path ? `${node.path}/${segment}` : segment,
           kind: 'folder',
           children: new Map(),
           notes: [],
@@ -1015,7 +1017,7 @@ function computeActiveSet() {
   const where = [];
   const params = [];
 
-  const folder = State.folderFilter && State.folderFilter !== DIR_NOTES ? State.folderFilter : '';
+  const folder = State.folderFilter;
   if (folder) {
     where.push('(path = ? OR path LIKE ?)');
     params.push(folder, `${folder}/%`);
@@ -2659,10 +2661,10 @@ function noteSkeleton({ title, template, tags, created }) {
 }
 
 function folderOptions() {
-  const options = [DIR_NOTES];
+  const options = [{ path: '', label: `[Root Folder] (${State.rootName || 'Workspace'})` }];
   const walk = (node) => {
     for (const child of node.children.values()) {
-      options.push(child.path);
+      if (child.path) options.push({ path: child.path, label: `${child.path}/` });
       walk(child);
     }
   };
@@ -2688,8 +2690,8 @@ function promptNewNote() {
         el('div', { class: 'field-row' }, [
           el('div', { class: 'field' }, [
             el('label', { for: 'nn-folder', text: 'Folder' }),
-            el('select', { id: 'nn-folder' }, folders.map((path) =>
-              el('option', { value: path, text: path, selected: path === State.folderFilter })))
+            el('select', { id: 'nn-folder' }, folders.map(({ path, label }) =>
+              el('option', { value: path, text: label, selected: path === State.folderFilter })))
           ]),
           el('div', { class: 'field' }, [
             el('label', { for: 'nn-template', text: 'Template' }),
@@ -2721,7 +2723,7 @@ function promptNewNote() {
         label: '[ Create Note ]',
         onClick: async (close) => {
           const title = $('#nn-title').value.trim() || 'Untitled Note';
-          const folder = $('#nn-folder').value || DIR_NOTES;
+          const folder = $('#nn-folder').value || '';
           const template = $('#nn-template').value || 'default';
           const tags = parseTagList($('#nn-tags').value);
           const subfolder = $('#nn-subfolder').value.trim();
@@ -2740,7 +2742,7 @@ async function createNote({ title, folder, template, tags, subfolder, bundle }) 
     let targetDir = joinPath(folder, subfolder);
     if (bundle) targetDir = joinPath(targetDir, slug);
 
-    await getDirectory(State.rootHandle, targetDir, true);
+    if (targetDir) await getDirectory(State.rootHandle, targetDir, true);
     if (bundle) await getDirectory(State.rootHandle, joinPath(targetDir, DIR_ASSETS), true);
 
     let fileName = `${slug}.html`;
@@ -2755,11 +2757,13 @@ async function createNote({ title, folder, template, tags, subfolder, bundle }) 
       title, template, tags, created: todayISO()
     }));
 
-    State.expanded.add(DIR_NOTES);
-    for (const part of splitPath(targetDir).reduce((acc, part) => {
-      acc.push(acc.length ? `${acc[acc.length - 1]}/${part}` : part);
-      return acc;
-    }, [])) State.expanded.add(part);
+    State.expanded.add('');
+    if (targetDir) {
+      for (const part of splitPath(targetDir).reduce((acc, part) => {
+        acc.push(acc.length ? `${acc[acc.length - 1]}/${part}` : part);
+        return acc;
+      }, [])) State.expanded.add(part);
+    }
 
     await refreshIndex();
     await openNote(path, { force: true });
